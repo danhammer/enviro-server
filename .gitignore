@@ -1,0 +1,8 @@
+*privatekey.pem
+privatekey.pem
+
+config.py*
+*config.py*
+*.pyc
+
+*.haters

@@ -1,0 +1,25 @@
+application: enviro-server
+version: v1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+
+libraries:
+- name: jinja2
+  version: "latest"
+- name: webapp2
+  version: "latest"
+- name: ssl
+  version: "latest"
+- name: pycrypto
+  version: "latest"  
+
+handlers:
+
+## Earth Engine dep:
+- url: /oauth2callback
+  script: oauth2client.appengine.application
+
+- url: /.*
+  script: api.handlers
