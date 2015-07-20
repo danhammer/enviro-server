@@ -5,6 +5,7 @@ import webapp2
 import cpi
 import json
 import config
+import vegetation
 from datetime import datetime
 
 TODAY = datetime.strftime(datetime.today(), '%Y-%m-%d')
@@ -57,6 +58,9 @@ class PlotRetrieval(webapp2.RequestHandler):
             self.response.headers.add_header(
                 "Access-Control-Allow-Origin", "*"
             )
+            self.response.headers.add_header(
+                "image-source", "LANDSAT8"
+            )
             self.response.headers['Content-Type'] = 'application/json'
 
             # Parameters
@@ -89,7 +93,47 @@ class PlotRetrieval(webapp2.RequestHandler):
             self.response.write(res)
 
 
+class EVIHandler(webapp2.RequestHandler):
+
+    def get(self):
+        # Retrieves the Vegetation stats for a given plot, specified by the
+        # unique CartoDB identifier
+        try:
+            # Headers
+            self.response.headers.add_header(
+                "Access-Control-Allow-Origin", "*"
+            )
+            self.response.headers.add_header(
+                "image-source", "LANDSAT8"
+            )
+            self.response.headers['Content-Type'] = 'application/json'
+
+            # Parameters
+            coords = self.request.get('coords')
+            begin = self.request.get('begin', '2000-01-01')
+            end = self.request.get('end', TODAY)
+
+            # Reformat parameters
+
+            # Response
+            self.response.write(
+                json.dumps(
+                    vegetation.grab(coords, begin, end)
+                )
+            )
+
+        except Exception, e:
+            res = json.dumps(
+                {
+                    "message": "error",
+                    "details": str(e)
+                }
+            )
+            self.response.write(res)
+
+
 handlers = webapp2.WSGIApplication([
-    ('/api/poly', PlotRetrieval),
-    ('/api/plot', PlotRetrieval),
+    ('/api/cpi/poly', PlotRetrieval),
+    ('/api/cpi/plot', PlotRetrieval),
+    ('/api/evi/poly', EVIHandler)
 ], debug=True)
